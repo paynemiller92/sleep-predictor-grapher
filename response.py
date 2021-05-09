@@ -7,6 +7,6 @@ class Response:
     @staticmethod
     def from_csv_record(record):
         response = Response()
-        response.week_day_mins_of_exercises = 0
         response.week_day_hrs_of_sleep = record['Q5']
+        response.week_day_mins_of_exercises = record['Q38']
         return response

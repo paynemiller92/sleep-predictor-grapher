@@ -46,9 +46,79 @@ def graph_average_hours_of_sleep(responses):
                             legend_title=dict(font=dict(size=LEGEND_FONT_SIZE, color=BLACK_COLOR)))
     pie_chart.show()
 
+
 def graph_average_minutes_of_exercise(responses):
-    
+    number_of_participants_under_15minutes_of_exercise = 0
+    number_of_participants_under_30minutes_of_exercise = 0
+    number_of_participants_under_45minutes_of_exercise = 0
+    number_of_participants_under_60minutes_of_exercise = 0
+    number_of_participants_over_60minutes_of_exercise = 0
+    number_of_erroneous_inputs = 0
+
+    for response in responses:
+        try:
+            minutes = float(response.week_day_mins_of_exercises)
+            if minutes < 15.0:
+                number_of_participants_under_15minutes_of_exercise += 1
+            elif minutes < 30.0:
+                number_of_participants_under_30minutes_of_exercise += 1
+            elif minutes < 45.0:
+                number_of_participants_under_45minutes_of_exercise += 1
+            elif minutes < 60.0:
+                number_of_participants_under_60minutes_of_exercise += 1
+            else:
+                number_of_participants_over_60minutes_of_exercise += 1
+        except ValueError:
+            number_of_erroneous_inputs += 1
+
+    data_frame = {
+        "Minutes of Exercise": [number_of_participants_under_15minutes_of_exercise,
+                                number_of_participants_under_30minutes_of_exercise,
+                                number_of_participants_under_45minutes_of_exercise,
+                                number_of_participants_under_60minutes_of_exercise,
+                                number_of_participants_over_60minutes_of_exercise],
+        "Labels": ["Under fifteen minutes",
+                   "Between fifteen and thirty minutes",
+                   "Between thirty and forty-five minutes",
+                   "Between forty-five and sixty minutes",
+                   "Over sixty minutes"]
+    }
+
+    graph_pie_chart(data_frame, "Average minutes of exercise per weekday", "Minutes of Exercise", "Labels")
 
 
-def round_value(value):
-    return 0.0
+def graph_exercise_to_sleep_scatter_plot(responses):
+    exercise_minutes = []
+    sleep_hours = []
+    for response in responses:
+        try:
+            exercise_minutes.append(float(response.week_day_mins_of_exercises))
+        except ValueError:
+            exercise_minutes.append(0)
+
+        try:
+            sleep_hours.append(float(response.week_day_hrs_of_sleep) / 60.0)
+        except ValueError:
+            sleep_hours.append(0)
+
+    data_frame = {
+        "Minutes of Exercise": exercise_minutes,
+        "Hours of Sleep": sleep_hours
+    }
+    graph_scatter_plot(data_frame, "Hours of Sleep by Exercise Minutes", "Minutes of Exercise", "Hours of Sleep")
+
+
+def graph_pie_chart(data_frame, title, values, names):
+    pie_chart = plotly.pie(data_frame, values=values, names=names, title=title)
+    pie_chart.for_each_trace(lambda trace: trace.update(textfont_color=WHITE_COLOR, textfont_size=VALUE_FONT_SIZE))
+    pie_chart.update_layout(legend=dict(font=dict(size=LEGEND_FONT_SIZE, color=BLACK_COLOR)),
+                            legend_title=dict(font=dict(size=LEGEND_FONT_SIZE, color=BLACK_COLOR)))
+    pie_chart.show()
+
+
+def graph_scatter_plot(data_frame, title, x_key, y_key):
+    scatter_plot = plotly.scatter(data_frame, x=x_key, y=y_key, title=title, trendline="lowess")
+    scatter_plot.update_traces(
+        marker=dict(size=12, line=dict(width=2, color='DarkSlateGrey'))
+    )
+    scatter_plot.show()
