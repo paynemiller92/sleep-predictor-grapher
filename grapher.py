@@ -1,3 +1,5 @@
+import syslog
+
 import plotly.express as plotly
 
 WHITE_COLOR = 'white'
@@ -105,7 +107,8 @@ def graph_exercise_to_sleep_scatter_plot(responses):
         "Minutes of Exercise": exercise_minutes,
         "Hours of Sleep": sleep_hours
     }
-    graph_scatter_plot_with_regression(data_frame, "Hours of Sleep by Exercise Minutes", "Minutes of Exercise", "Hours of Sleep", "lowess")
+    graph_scatter_plot_with_regression(data_frame, "Hours of Sleep by Exercise Minutes", "Minutes of Exercise",
+                                       "Hours of Sleep", "lowess")
 
 
 def graph_naps_to_sleep_scatter_plot(responses):
@@ -126,7 +129,63 @@ def graph_naps_to_sleep_scatter_plot(responses):
         "Minutes of Nap Time": nap_minutes,
         "Hours of Sleep": sleep_hours
     }
-    graph_scatter_plot_with_regression(data_frame, "Hours of Sleep by Napping Minutes", "Minutes of Nap Time", "Hours of Sleep", "ols")
+    graph_scatter_plot_with_regression(data_frame, "Hours of Sleep by Napping Minutes", "Minutes of Nap Time",
+                                       "Hours of Sleep", "ols")
+
+
+def graph_drinks_to_sleep_scatter_plot(responses):
+    drinks = []
+    sleep_hours = []
+    for response in responses:
+        try:
+            number_of_drinks = float(response.number_of_drinks_consumed)
+            if number_of_drinks == 99.0:
+                drinks.append(0)
+            else:
+                drinks.append(number_of_drinks)
+        except ValueError:
+            drinks.append(0)
+
+        try:
+            sleep_hours.append(float(response.week_day_hrs_of_sleep) / 60.0)
+        except ValueError:
+            sleep_hours.append(0)
+
+    data_frame = {
+        "Average number of drinks": drinks,
+        "Hours of Sleep": sleep_hours
+    }
+    graph_scatter_plot_with_regression(data_frame, "Hours of Sleep by Number of Alcoholic Drinks Consumed",
+                                       "Average number of drinks",
+                                       "Hours of Sleep", "ols")
+
+
+def graph_screen_time_to_sleep_hours(responses):
+    screen_times = []
+    sleep_hours = []
+    for response in responses:
+        try:
+            minutes = float(response.minutes_of_screentime)
+            if minutes == 99.0:
+                screen_times.append(0)
+            else:
+                screen_times.append(minutes)
+        except ValueError:
+            screen_times.append(0)
+
+        try:
+            sleep_hours.append(float(response.week_day_hrs_of_sleep) / 60.0)
+        except ValueError:
+            sleep_hours.append(0)
+
+    data_frame = {
+        "Minutes of Screen Time": screen_times,
+        "Hours of Sleep": sleep_hours
+    }
+    graph_scatter_plot_with_regression(data_frame, "Hours of Sleep by Minutes of Screen Time",
+                                       "Minutes of Screen Time",
+                                       "Hours of Sleep", "ols")
+
 
 def graph_pie_chart(data_frame, title, values, names):
     pie_chart = plotly.pie(data_frame, values=values, names=names, title=title)
