@@ -57,7 +57,7 @@ def graph_average_minutes_of_exercise(responses):
 
     for response in responses:
         try:
-            minutes = float(response.week_day_mins_of_exercises)
+            minutes = float(response.week_day_minutes_of_exercises)
             if minutes < 15.0:
                 number_of_participants_under_15minutes_of_exercise += 1
             elif minutes < 30.0:
@@ -92,7 +92,7 @@ def graph_exercise_to_sleep_scatter_plot(responses):
     sleep_hours = []
     for response in responses:
         try:
-            exercise_minutes.append(float(response.week_day_mins_of_exercises))
+            exercise_minutes.append(float(response.week_day_minutes_of_exercises))
         except ValueError:
             exercise_minutes.append(0)
 
@@ -105,8 +105,28 @@ def graph_exercise_to_sleep_scatter_plot(responses):
         "Minutes of Exercise": exercise_minutes,
         "Hours of Sleep": sleep_hours
     }
-    graph_scatter_plot(data_frame, "Hours of Sleep by Exercise Minutes", "Minutes of Exercise", "Hours of Sleep")
+    graph_scatter_plot_with_regression(data_frame, "Hours of Sleep by Exercise Minutes", "Minutes of Exercise", "Hours of Sleep", "lowess")
 
+
+def graph_naps_to_sleep_scatter_plot(responses):
+    nap_minutes = []
+    sleep_hours = []
+    for response in responses:
+        try:
+            nap_minutes.append(float(response.week_day_minutes_of_naptime))
+        except ValueError:
+            nap_minutes.append(0)
+
+        try:
+            sleep_hours.append(float(response.week_day_hrs_of_sleep) / 60.0)
+        except ValueError:
+            sleep_hours.append(0)
+
+    data_frame = {
+        "Minutes of Nap Time": nap_minutes,
+        "Hours of Sleep": sleep_hours
+    }
+    graph_scatter_plot_with_regression(data_frame, "Hours of Sleep by Napping Minutes", "Minutes of Nap Time", "Hours of Sleep", "ols")
 
 def graph_pie_chart(data_frame, title, values, names):
     pie_chart = plotly.pie(data_frame, values=values, names=names, title=title)
@@ -116,8 +136,8 @@ def graph_pie_chart(data_frame, title, values, names):
     pie_chart.show()
 
 
-def graph_scatter_plot(data_frame, title, x_key, y_key):
-    scatter_plot = plotly.scatter(data_frame, x=x_key, y=y_key, title=title, trendline="lowess")
+def graph_scatter_plot_with_regression(data_frame, title, x_key, y_key, regression):
+    scatter_plot = plotly.scatter(data_frame, x=x_key, y=y_key, title=title, trendline=regression)
     scatter_plot.update_traces(
         marker=dict(size=12, line=dict(width=2, color='DarkSlateGrey'))
     )
